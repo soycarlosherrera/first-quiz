@@ -1,0 +1,145 @@
+diff --git a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+index 85742c4..db14a8c 100644
+--- a/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
++++ b/part2/src/main/java/org/velezreyes/quiz/question6/VendingMachineImpl.java
+@@ -1,9 +1,69 @@
+ package org.velezreyes.quiz.question6;
+ 
+-public class VendingMachineImpl {
++public class VendingMachineImpl implements VendingMachine {
++
++  private static VendingMachineImpl instance;
++
++  private int insertedQuarters=0;
++
++  private VendingMachineImpl(){
++
++  }
+ 
+   public static VendingMachine getInstance() {
+-    // Fix me!
+-    return null;
++    
++    if(instance==null){
++      instance=new VendingMachineImpl();
++    }
++
++    return instance;
++  }
++
++  @Override
++  public void insertQuarter() {
++    
++    insertedQuarters++;
++    
++  }
++
++  @Override
++  public Drink pressButton(String name) throws NotEnoughMoneyException, UnknownDrinkException {
++
++     Cola cola=null;
++     Tea tea=null;
++    
++    if(name.equals("ScottCola")){
++
++      cola = new Cola(name, true);
++
++      if(insertedQuarters<3){
++
++        throw new NotEnoughMoneyException();
++
++      }
++
++      insertedQuarters=0;
++      return cola;
++
++    }
++    else if(name.equals("KarenTea")){
++
++      tea = new Tea(name, false);
++
++      if(insertedQuarters<4){
++
++        throw new NotEnoughMoneyException();
++
++      }
++
++      insertedQuarters=0;
++      return tea;
++    }
++    else{
++
++      throw new UnknownDrinkException();
++
++    }
++
+   }
+-}
++}
+\ No newline at end of file
+diff --git a/part2/src/test/java/org/velezreyes/quiz/Question6Test.java b/part2/src/test/java/org/velezreyes/quiz/Question6Test.java
+index eaf7fdd..dfe0a99 100644
+--- a/part2/src/test/java/org/velezreyes/quiz/Question6Test.java
++++ b/part2/src/test/java/org/velezreyes/quiz/Question6Test.java
+@@ -13,14 +13,14 @@ import org.velezreyes.quiz.question6.UnknownDrinkException;
+ import org.velezreyes.quiz.question6.VendingMachine;
+ import org.velezreyes.quiz.question6.VendingMachineImpl;
+ 
+-public class Question6Test {
+-
++public class Question6Test {  
++  
+   @Test
+   public void canCreateVendingMachineInstance() {
+     VendingMachine vm = VendingMachineImpl.getInstance();
+     assertNotNull(vm);
+   }
+-
++  
+   @Test
+   public void drinkNotFree() {
+     VendingMachine vm = VendingMachineImpl.getInstance();
+@@ -28,7 +28,7 @@ public class Question6Test {
+     Exception exception = assertThrows(NotEnoughMoneyException.class, () -> {
+       vm.pressButton("ScottCola");
+     });
+-  }
++  }  
+ 
+   @Test
+   public void canGetScottColaFor75Cents() throws Exception {
+@@ -57,7 +57,7 @@ public class Question6Test {
+     Exception exception = assertThrows(NotEnoughMoneyException.class, () -> {
+       vm.pressButton("ScottCola");
+     });
+-  }
++  }  
+ 
+   @Test
+   public void canGetKarenTeaForOneDollar() throws Exception {
+@@ -67,7 +67,7 @@ public class Question6Test {
+     vm.insertQuarter();
+     vm.insertQuarter();
+ 
+-    // Test that KarenTea costs more than 75 cents.
++    // Test that KarenTea costs at least 75 cents.
+     assertThrows(NotEnoughMoneyException.class, () -> {
+       vm.pressButton("KarenTea");
+     });
+@@ -78,7 +78,7 @@ public class Question6Test {
+     assertFalse(drink.isFizzy());
+     assertEquals(drink.getName(), "KarenTea");
+   }
+-
++  
+   @Test
+   public void otherDrinksUnknown() throws Exception {
+     VendingMachine vm = VendingMachineImpl.getInstance();
+@@ -92,4 +92,5 @@ public class Question6Test {
+       vm.pressButton("BessieBooze");
+     });
+   }
+-}
++  
++}
+\ No newline at end of file
